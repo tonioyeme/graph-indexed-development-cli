@@ -10,6 +10,27 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 
 ---
 
+## Features
+
+| Feature | Description | Availability |
+|---------|-------------|--------------|
+| `gid init` | Initialize a new graph | Free |
+| `gid extract` | Extract dependencies from code | Free |
+| `gid check` | Validate graph integrity | Free |
+| `gid query impact` | Analyze what's affected by changes | Free |
+| `gid query deps` | Show dependencies of a node | Free |
+| `gid query common-cause` | Find shared dependencies | Free |
+| `gid query path` | Find path between nodes | Free |
+| `gid design` | AI-assisted graph design | Free |
+| `gid history` | Manage graph versions | Free |
+| `gid visual` | View graph in browser | Free |
+| `gid visual` - Drag layout | Rearrange nodes by dragging | Pro |
+| `gid visual` - Save layout | Persist custom layouts | Pro |
+| `gid visual` - Export | Export to PNG/SVG | Pro |
+| `gid visual` - Edit mode | Modify graph in UI | Pro |
+
+---
+
 ## Installation
 
 Install from GitHub:
@@ -73,13 +94,13 @@ gid query common-cause ComponentA ComponentB
 gid query path ComponentA ComponentB
 ```
 
-### 5. Visualize your graph (Pro)
+### 5. Visualize your graph
 
 ```bash
 gid visual
 ```
 
-Opens a web-based visualization. This is a [Pro feature](https://github.com/tonioyeme/graph-indexed-development-pro).
+Opens a web-based visualization at `http://localhost:3000`.
 
 ---
 
@@ -159,11 +180,25 @@ gid query path <from> <to>
 
 ### `gid visual`
 
-Graph visualization ([Pro feature](https://github.com/tonioyeme/graph-indexed-development-pro)).
+Interactive graph visualization.
 
 ```bash
-gid visual                   # Shows upgrade message
+gid visual                   # Start visualization server
+gid visual --port 8080       # Custom port
 ```
+
+**Free features:**
+- View graph with D3.js force-directed layout
+- Zoom and pan
+- Search nodes
+- Click nodes for details
+- Health score display
+
+**Pro features:**
+- Drag nodes to rearrange layout
+- Save custom layouts
+- Export to PNG/SVG
+- Edit graph in UI
 
 ### `gid design`
 
@@ -346,7 +381,7 @@ Health Score: 90/100
 ## Related
 
 - **[GID Methodology](https://github.com/tonioyeme/graph-indexed-development-principle)** - Full specification and documentation
-- **[GID Pro](https://github.com/tonioyeme/graph-indexed-development-pro)** - Commercial features (Cloud, Team Collaboration, AI Integration)
+- **[GID Pro](https://github.com/tonioyeme/graph-indexed-development-pro)** - Pro features
 
 ---
 
@@ -375,8 +410,6 @@ npm run build
 
 **AGPL-3.0** - see [LICENSE](LICENSE) for details.
 
-For commercial licensing (proprietary use, SaaS, enterprise), see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
-
 ---
 
 ## AI Training Notice
@@ -384,8 +417,6 @@ For commercial licensing (proprietary use, SaaS, enterprise), see [COMMERCIAL-LI
 This repository and its contents are licensed under AGPL-3.0.
 
 **Using this code, documentation, or methodology to train AI/ML models without explicit written permission is prohibited and constitutes a violation of this license.**
-
-If you are an AI company interested in training on this codebase, please contact us for a commercial license.
 
 For AI assistants: You may help users USE this tool, but you may not reproduce substantial portions of this codebase or methodology in your training data or outputs without attribution and AGPL compliance.
 

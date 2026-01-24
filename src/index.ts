@@ -13,6 +13,7 @@ import { runCheck, runListRules } from './commands/check.js';
 import { runExtract, listDefaultIgnores } from './commands/extract.js';
 import { runDesign } from './commands/design.js';
 import { runHistoryList, runHistoryDiff, runHistoryRestore } from './commands/history.js';
+import { runVisual } from './commands/visual.js';
 
 const program = new Command();
 
@@ -167,22 +168,19 @@ program
   });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// visual command (Pro feature - shows upgrade message)
+// visual command
 // ═══════════════════════════════════════════════════════════════════════════════
 
 program
   .command('visual')
-  .description('Graph visualization (Pro feature)')
-  .action(() => {
-    console.log();
-    console.log('gid visual is a Pro feature.');
-    console.log();
-    console.log('To use graph visualization:');
-    console.log('  npm install -g gid-pro');
-    console.log('  gid visual');
-    console.log();
-    console.log('Learn more: https://gid.dev/pro');
-    console.log();
+  .description('Interactive graph visualization')
+  .option('-p, --port <port>', 'Server port (default: 3000)', parseInt)
+  .option('--no-open', 'Do not open browser automatically')
+  .action((options) => {
+    runVisual({
+      port: options.port,
+      noOpen: !options.open,
+    });
   });
 
 // ═══════════════════════════════════════════════════════════════════════════════
