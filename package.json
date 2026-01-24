@@ -1,0 +1,46 @@
+{
+  "name": "graph-indexed-development-cli",
+  "version": "1.0.0",
+  "description": "Graph-Indexed Development CLI - Query and manage dependency graphs",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "gid": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsx src/index.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "dependency-graph",
+    "architecture",
+    "cli",
+    "impact-analysis"
+  ],
+  "author": "Toni Tang",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "express": "^5.2.1",
+    "js-yaml": "^4.1.0",
+    "madge": "^8.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "pkg": "^5.8.1",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
