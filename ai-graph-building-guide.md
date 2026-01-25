@@ -600,13 +600,13 @@ Path (3 hops):
 
 **When to use**: Understanding how two components are connected.
 
-### `gid serve` - Visualize Graph
+### `gid visual` - Visualize Graph
 
 Start a web-based graph visualization.
 
 ```bash
-gid serve                    # Default port 3000
-gid serve --port 8080        # Custom port
+gid visual                    # Default port 3000
+gid visual --port 8080        # Custom port
 ```
 
 Opens an interactive D3.js visualization at `http://localhost:3000` with:
@@ -630,7 +630,7 @@ gid design --requirements "Build a..." # Non-interactive
 
 **When to use**: Getting AI help to design a new system architecture.
 
-### `gid history` - Version Management
+### `gid history` - Version Management (Pro)
 
 Manage graph versions (when using `--incremental`).
 
@@ -655,7 +655,7 @@ AI:
 1. Ask about features/requirements
 2. Create .gid/graph.yml with Features and Components
 3. Run `gid check` to validate
-4. Run `gid serve` to visualize
+4. Run `gid visual` to visualize
 ```
 
 ### 2. For Existing TS/JS Projects
