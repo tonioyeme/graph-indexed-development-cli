@@ -11,9 +11,9 @@ import { loadGraph, GIDGraph, QueryEngine, GIDError, ImpactResult, DependencyRes
 // Impact Query
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function runImpactQuery(nodeId: string): void {
+export function runImpactQuery(nodeId: string, graphPath?: string): void {
   try {
-    const graphData = loadGraph();
+    const graphData = loadGraph(graphPath);
     const graph = new GIDGraph(graphData);
     const engine = new QueryEngine(graph);
 
@@ -91,9 +91,9 @@ function printImpactResult(result: ImpactResult): void {
 // Dependencies Query
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function runDepsQuery(nodeId: string, options: { reverse?: boolean } = {}): void {
+export function runDepsQuery(nodeId: string, options: { reverse?: boolean; graphPath?: string } = {}): void {
   try {
-    const graphData = loadGraph();
+    const graphData = loadGraph(options.graphPath);
     const graph = new GIDGraph(graphData);
     const engine = new QueryEngine(graph);
 
@@ -142,9 +142,9 @@ function printDependencyResult(result: DependencyResult, reverse: boolean): void
 // Common Cause Query
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function runCommonCauseQuery(nodeA: string, nodeB: string): void {
+export function runCommonCauseQuery(nodeA: string, nodeB: string, graphPath?: string): void {
   try {
-    const graphData = loadGraph();
+    const graphData = loadGraph(graphPath);
     const graph = new GIDGraph(graphData);
     const engine = new QueryEngine(graph);
 
@@ -181,9 +181,9 @@ function printCommonCauseResult(result: CommonCauseResult): void {
 // Path Query
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function runPathQuery(from: string, to: string): void {
+export function runPathQuery(from: string, to: string, graphPath?: string): void {
   try {
-    const graphData = loadGraph();
+    const graphData = loadGraph(graphPath);
     const graph = new GIDGraph(graphData);
     const engine = new QueryEngine(graph);
 

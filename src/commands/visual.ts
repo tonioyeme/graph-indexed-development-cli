@@ -8,16 +8,17 @@
 import chalk from 'chalk';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
-import { startServer } from '../web/server.js';
+import { startServer, exportStaticHTML } from '../web/server.js';
 
 export interface VisualOptions {
   port?: number;
   noOpen?: boolean;
+  static?: boolean;
+  graphPath?: string;
 }
 
 export function runVisual(options: VisualOptions = {}): void {
-  const port = options.port || 3000;
-  const graphPath = resolve(process.cwd(), '.gid', 'graph.yml');
+  const graphPath = options.graphPath ?? resolve(process.cwd(), '.gid', 'graph.yml');
 
   // Check for graph.yml
   if (!existsSync(graphPath)) {
@@ -26,7 +27,19 @@ export function runVisual(options: VisualOptions = {}): void {
     process.exit(1);
   }
 
-  // Start the visualization server
+  // Static mode: export to HTML file
+  if (options.static) {
+    const outputPath = resolve(process.cwd(), 'graph.html');
+    exportStaticHTML({
+      graphPath,
+      outputPath,
+      open: !options.noOpen,
+    });
+    return;
+  }
+
+  // Server mode (default)
+  const port = options.port || 3000;
   startServer({
     port,
     graphPath,

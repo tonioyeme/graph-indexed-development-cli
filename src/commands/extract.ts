@@ -11,6 +11,9 @@ import chalk from 'chalk';
 import { loadGraph, saveGraph } from '../core/parser.js';
 import { createStateManager, computeFileHashes, getGitCommit, getGitBranch, diffGraphs, ExtractionState } from '../core/state.js';
 import { extractTypeScript, groupIntoComponents, ExtractionResult, DEFAULT_IGNORE_DIRS, previewExtraction, PreviewResult } from '../extractors/index.js';
+import { createAIClient, detectAIProvider } from '../ai/client.js';
+import { getFileSignatures, detectFilePatterns } from '../analyzers/code-analysis.js';
+import type { GIDGraph as GIDGraphType } from '../core/types.js';
 
 export interface ExtractOptions {
   lang?: string;
@@ -24,6 +27,16 @@ export interface ExtractOptions {
   dryRun?: boolean;
   incremental?: boolean;
   interactive?: boolean;
+  verify?: boolean;
+  depth?: number;
+  withStats?: boolean;
+  noBarrels?: boolean;
+  withSignatures?: boolean;
+  withPatterns?: boolean;
+  enrich?: boolean;
+  withSummaries?: boolean;
+  aiProvider?: string;
+  aiModel?: string;
 }
 
 export async function runExtract(targetDirs: string[], options: ExtractOptions): Promise<void> {
@@ -38,6 +51,16 @@ export async function runExtract(targetDirs: string[], options: ExtractOptions):
     dryRun = false,
     incremental = false,
     interactive = false,
+    verify = false,
+    depth = 0,
+    withStats = false,
+    noBarrels = false,
+    withSignatures = false,
+    withPatterns = false,
+    enrich = false,
+    withSummaries = false,
+    aiProvider,
+    aiModel,
   } = options;
 
   // Interactive mode
@@ -166,6 +189,13 @@ export async function runExtract(targetDirs: string[], options: ExtractOptions):
           tsConfig: tsconfig,
           excludeDir: ignore,
           noDefaultIgnore,
+          verify,
+          depth,
+          withStats,
+          noBarrels,
+          withSignatures,
+          withPatterns,
+          enrich,
         });
         break;
 
@@ -182,8 +212,38 @@ export async function runExtract(targetDirs: string[], options: ExtractOptions):
       finalGraph = groupIntoComponents(result.graph);
     }
 
+    // Generate AI summaries if requested
+    if (withSummaries) {
+      finalGraph = await generateAISummaries(finalGraph, { provider: aiProvider, model: aiModel });
+    }
+
     // Print stats
-    printStats(result, group ? Object.keys(finalGraph.nodes).length : undefined);
+    printStats(
+      result,
+      group ? Object.keys(finalGraph.nodes).length : undefined,
+      group ? finalGraph.edges.length : undefined
+    );
+
+    // Print verification results
+    if (result.verification) {
+      console.log();
+      console.log(chalk.bold('Verification:'));
+      console.log(chalk.dim('─'.repeat(40)));
+      console.log(`  Source files:    ${result.verification.sourceFiles}`);
+      console.log(`  Extracted:       ${result.verification.extractedFiles}`);
+      console.log(`  Coverage:        ${result.verification.coverage}%`);
+
+      if (result.verification.missingFiles.length > 0) {
+        console.log();
+        console.log(chalk.yellow(`  Missing files (${result.verification.missingFiles.length}):`));
+        for (const file of result.verification.missingFiles.slice(0, 5)) {
+          console.log(chalk.yellow(`    - ${file}`));
+        }
+        if (result.verification.missingFiles.length > 5) {
+          console.log(chalk.dim(`    ... and ${result.verification.missingFiles.length - 5} more`));
+        }
+      }
+    }
 
     // Print warnings
     if (result.warnings.length > 0) {
@@ -371,7 +431,8 @@ export function listDefaultIgnores(): void {
 
 function printStats(
   result: ExtractionResult,
-  groupedCount?: number
+  groupedCount?: number,
+  groupedEdges?: number
 ): void {
   console.log(chalk.bold('Extraction Results:'));
   console.log(chalk.dim('─'.repeat(40)));
@@ -384,7 +445,16 @@ function printStats(
     console.log(`  Nodes created:      ${result.stats.componentsFound}`);
   }
 
-  console.log(`  Dependencies found: ${result.stats.dependenciesFound}`);
+  if (groupedEdges !== undefined) {
+    console.log(`  Dependencies found: ${groupedEdges}`);
+    console.log(chalk.dim(`  (grouped from ${result.stats.dependenciesFound} file-level imports)`));
+  } else {
+    console.log(`  Dependencies found: ${result.stats.dependenciesFound}`);
+  }
+
+  if (result.stats.enrichedNodes) {
+    console.log(`  Nodes enriched:     ${chalk.cyan(result.stats.enrichedNodes)}`);
+  }
 
   if (result.stats.circularDeps.length > 0) {
     console.log(`  Circular deps:      ${chalk.yellow(result.stats.circularDeps.length)}`);
@@ -662,4 +732,142 @@ function getBuildDirDescription(dir: string): string {
   };
 
   return descriptions[dir] || '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AI Summary Generation (Pro CLI Feature)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface AISummaryOptions {
+  provider?: string;
+  model?: string;
+}
+
+/**
+ * Generate AI-powered descriptions for graph nodes
+ */
+async function generateAISummaries(
+  graph: GIDGraphType,
+  options: AISummaryOptions
+): Promise<GIDGraphType> {
+  // Detect AI provider
+  const provider = options.provider || detectAIProvider();
+  if (!provider) {
+    console.log(chalk.yellow('\n⚠ No AI provider configured for --with-summaries.'));
+    console.log(chalk.dim('  Set OPENAI_API_KEY or ANTHROPIC_API_KEY environment variable.'));
+    console.log(chalk.dim('  Skipping AI summary generation.'));
+    return graph;
+  }
+
+  console.log();
+  console.log(chalk.dim(`Generating AI summaries using ${provider}...`));
+
+  try {
+    const client = createAIClient({
+      provider: provider as 'openai' | 'anthropic' | 'ollama',
+      model: options.model,
+    });
+
+    // Get File nodes that need summaries
+    const fileNodes = Object.entries(graph.nodes).filter(
+      ([_, node]) => node.type === 'File' && node.path && !node.description
+    );
+
+    if (fileNodes.length === 0) {
+      console.log(chalk.dim('  No files need summaries.'));
+      return graph;
+    }
+
+    console.log(chalk.dim(`  Processing ${fileNodes.length} files...`));
+
+    let processed = 0;
+    let failed = 0;
+
+    for (const [nodeId, node] of fileNodes) {
+      if (!node.path) continue;
+
+      try {
+        // Get file analysis
+        const signatures = getFileSignatures(node.path);
+        const patterns = detectFilePatterns(node.path);
+
+        // Build context for AI
+        const context = buildFileContext(node.path, signatures, patterns);
+
+        // Generate summary
+        const summary = await client.complete(
+          `Based on the following file analysis, provide a concise one-sentence description of what this file does and its role in the codebase. Only respond with the description, no explanation.
+
+${context}`,
+          {
+            maxTokens: 100,
+            temperature: 0.3,
+          }
+        );
+
+        // Clean up and assign
+        const cleanSummary = summary.trim().replace(/^["']|["']$/g, '');
+        if (cleanSummary && cleanSummary.length > 10) {
+          node.description = cleanSummary;
+          processed++;
+        }
+
+        // Progress indicator
+        if ((processed + failed) % 10 === 0) {
+          process.stdout.write(chalk.dim('.'));
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    console.log();
+    console.log(chalk.dim(`  Generated ${processed} summaries (${failed} failed).`));
+
+    return graph;
+  } catch (err) {
+    console.log(chalk.yellow(`\n⚠ AI summary generation failed: ${(err as Error).message}`));
+    console.log(chalk.dim('  Continuing without AI summaries.'));
+    return graph;
+  }
+}
+
+/**
+ * Build context string for AI to generate summary
+ */
+function buildFileContext(
+  filePath: string,
+  signatures: ReturnType<typeof getFileSignatures>,
+  patterns: ReturnType<typeof detectFilePatterns>
+): string {
+  const lines: string[] = [];
+
+  lines.push(`File: ${path.basename(filePath)}`);
+  lines.push(`Path: ${filePath}`);
+
+  if (patterns.length > 0) {
+    lines.push(`Patterns: ${patterns.map(p => p.pattern).join(', ')}`);
+  }
+
+  if (signatures.classes.length > 0) {
+    lines.push(`Classes: ${signatures.classes.map(c => c.name).join(', ')}`);
+  }
+
+  if (signatures.functions.length > 0) {
+    const exportedFns = signatures.functions.filter(f => f.exported);
+    if (exportedFns.length > 0) {
+      lines.push(`Exported functions: ${exportedFns.map(f => f.name).join(', ')}`);
+    }
+  }
+
+  if (signatures.exports.length > 0) {
+    lines.push(`Exports: ${signatures.exports.slice(0, 10).join(', ')}${signatures.exports.length > 10 ? '...' : ''}`);
+  }
+
+  if (signatures.imports.length > 0) {
+    const importSources = [...new Set(signatures.imports.map(i => i.from))].slice(0, 5);
+    lines.push(`Key imports: ${importSources.join(', ')}`);
+  }
+
+  return lines.join('\n');
 }
