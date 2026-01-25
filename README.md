@@ -114,9 +114,8 @@ Opens a web-based visualization at `http://localhost:3000`.
 Initialize a new graph in the current project.
 
 ```bash
-gid init                    # Interactive mode
-gid init --template minimal # Use minimal template
-gid init --force            # Overwrite existing graph
+gid init           # Create .gid/graph.yml with starter template
+gid init --force   # Overwrite existing graph
 ```
 
 ### `gid extract`
@@ -126,17 +125,27 @@ Extract dependency graph from existing code.
 ```bash
 gid extract .                           # Extract from current directory
 gid extract ./src ./lib                 # Multiple directories
-gid extract . --lang typescript         # Specify language
+gid extract . --lang typescript         # Specify language (typescript, javascript)
 gid extract . --ignore "*.test.ts"      # Ignore patterns
-gid extract . --tsconfig tsconfig.json  # Custom tsconfig
-gid extract . --interactive             # Guided extraction
+gid extract . --group                   # Group files into components by directory
 gid extract . --dry-run                 # Preview without writing
+gid extract . --interactive             # Guided extraction
+gid extract . --incremental             # Only process changed files
+gid extract . --enrich                  # Include stats, signatures, patterns
+gid extract . --with-signatures         # Include function/class signatures
+gid extract . --with-patterns           # Detect architectural patterns
 ```
 
 **Default ignored directories:**
 - `node_modules`, `.next`, `.nuxt`, `dist`, `build`, `.git`, `coverage`, etc.
 
 Use `gid extract ignore-list` to see all defaults.
+
+**Multi-language support:**
+- TypeScript/JavaScript (default)
+- Python (`--lang python`)
+- Rust (`--lang rust`)
+- Java (`--lang java`)
 
 ### `gid advise`
 
@@ -185,20 +194,18 @@ Interactive graph visualization.
 ```bash
 gid visual                   # Start visualization server
 gid visual --port 8080       # Custom port
+gid visual --static          # Generate static HTML file (no server)
+gid visual --no-open         # Don't auto-open browser
 ```
 
-**Free features:**
-- View graph with D3.js force-directed layout
-- Zoom and pan
-- Search nodes
+**Features:**
+- D3.js force-directed layout
+- Zoom, pan, and search
 - Click nodes for details
 - Health score display
-
-**Pro features:**
-- Drag nodes to rearrange layout
-- Save custom layouts
-- Export to PNG/SVG
-- Edit graph in UI
+- Drag nodes to reposition
+- Expand/collapse grouped components
+- Layout persistence (saves to `.gid/layout.json`)
 
 ### `gid semantify`
 
@@ -209,7 +216,9 @@ gid semantify                    # Analyze and prompt for approval
 gid semantify --dry-run          # Preview proposals only
 gid semantify --scope layers     # Only assign layers
 gid semantify --scope components # Only group into components
+gid semantify --scope features   # Only detect features
 gid semantify --yes              # Auto-approve (for CI)
+gid semantify --json             # Output as JSON
 ```
 
 ### `gid design` (Pro)
