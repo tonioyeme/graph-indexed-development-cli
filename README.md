@@ -16,18 +16,19 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 |---------|-------------|--------------|
 | `gid init` | Initialize a new graph | Free |
 | `gid extract` | Extract dependencies from code | Free |
-| `gid check` | Validate graph integrity | Free |
+| `gid advise` | Validate graph + suggest improvements | Free |
 | `gid query impact` | Analyze what's affected by changes | Free |
 | `gid query deps` | Show dependencies of a node | Free |
 | `gid query common-cause` | Find shared dependencies | Free |
 | `gid query path` | Find path between nodes | Free |
-| `gid design` | AI-assisted graph design | Free |
 | `gid history` | Manage graph versions | Free |
 | `gid visual` | View graph in browser | Free |
-| `gid visual` - Drag layout | Rearrange nodes by dragging | Pro |
-| `gid visual` - Save layout | Persist custom layouts | Pro |
-| `gid visual` - Export | Export to PNG/SVG | Pro |
-| `gid visual` - Edit mode | Modify graph in UI | Pro |
+| `gid semantify` | Upgrade to semantic graph (heuristic) | Free |
+| `gid design` | AI-assisted graph design | Pro |
+| `gid analyze` | Deep file/function analysis | Pro |
+| `gid refactor` | Preview/apply graph changes | Pro |
+| `gid semantify --ai` | AI-powered semantic analysis | Pro |
+| `gid extract --with-summaries` | AI-generated descriptions | Pro |
 
 **[See WORKFLOWS.md](WORKFLOWS.md)** for common use cases: new project setup, planning features, impact analysis, refactoring, and more.
 
@@ -35,10 +36,10 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 
 ## Installation
 
-Install from GitHub:
+Install from npm:
 
 ```bash
-npm install -g github:tonioyeme/graph-indexed-development-cli
+npm install -g graph-indexed-development-cli
 ```
 
 Or clone and link locally:
@@ -72,13 +73,13 @@ gid extract .
 
 Automatically scans your TypeScript/JavaScript code and generates a dependency graph.
 
-### 3. Validate your graph
+### 3. Validate and get suggestions
 
 ```bash
-gid check
+gid advise
 ```
 
-Runs integrity checks: circular dependencies, orphan nodes, layer violations, etc.
+Runs integrity checks and suggests improvements: circular dependencies, orphan nodes, layer violations, high coupling, etc.
 
 ### 4. Query dependencies
 
@@ -137,29 +138,26 @@ gid extract . --dry-run                 # Preview without writing
 
 Use `gid extract ignore-list` to see all defaults.
 
-### `gid check`
+### `gid advise`
 
-Validate graph integrity.
+Validate graph and suggest improvements.
 
 ```bash
-gid check                    # Run all checks
-gid check --rules no-circular-dependency,no-orphan-nodes
-gid check --disable high-coupling-warning
-gid check --threshold 10     # Custom coupling threshold
-gid check --json             # Output as JSON
+gid advise                         # Run all checks + suggestions
+gid advise --level deterministic   # Only validation issues
+gid advise --level heuristic       # Only heuristic suggestions
+gid advise --include-context       # Include code pattern context
+gid advise --json                  # Output as JSON
 ```
 
-**Available rules:**
+**Validation rules:**
 | Rule | Description |
 |------|-------------|
-| `no-circular-dependency` | Detect circular dependencies |
-| `no-orphan-nodes` | Find disconnected nodes |
-| `feature-has-implementation` | Features must have implementing components |
-| `component-implements-feature` | Components should implement features |
-| `high-coupling-warning` | Warn on high fan-in/fan-out |
-| `layer-dependency-direction` | Enforce layer boundaries |
-
-Use `gid check rules` to list all available rules.
+| `circular-dependency` | Detect circular dependencies |
+| `orphan-node` | Find disconnected nodes |
+| `missing-implements` | Features must have implementing components |
+| `high-coupling` | Warn on high fan-in/fan-out |
+| `layer-violation` | Enforce layer boundaries |
 
 ### `gid query`
 
@@ -202,9 +200,21 @@ gid visual --port 8080       # Custom port
 - Export to PNG/SVG
 - Edit graph in UI
 
-### `gid design`
+### `gid semantify`
 
-AI-assisted graph design (requires API key).
+Upgrade file-level graph to semantic graph with layers, components, and features.
+
+```bash
+gid semantify                    # Analyze and prompt for approval
+gid semantify --dry-run          # Preview proposals only
+gid semantify --scope layers     # Only assign layers
+gid semantify --scope components # Only group into components
+gid semantify --yes              # Auto-approve (for CI)
+```
+
+### `gid design` (Pro)
+
+AI-assisted graph design (requires Pro CLI and API key).
 
 ```bash
 gid design                              # Interactive mode
@@ -363,19 +373,30 @@ If both nodes are affected, check these common dependencies first.
 ### Example 3: Validate architecture
 
 ```bash
-$ gid check
+$ gid advise
 
-Graph Validation Report
-════════════════════════════════════════════════════════════
+Analyzing graph (level: all)...
 
-✓ no-circular-dependency              PASSED
-✓ no-orphan-nodes                     PASSED
-✓ feature-has-implementation          PASSED
-⚠ layer-dependency-direction          1 issue(s)
-    └─ Layer violation: UserController depends on DatabaseService
-       interface should not depend on infrastructure directly
+Suggestions:
 
-Health Score: 90/100
+1. [D] orphan-node
+   Node "utils/helpers.ts" has no connections
+   Connect to related nodes or remove if unused
+
+2. [H] high-coupling
+   DatabaseService has 8 dependents (high coupling)
+   Consider splitting into smaller components
+
+3. [D] layer-violation
+   UserController depends on DatabaseService
+   interface should not depend on infrastructure directly
+
+Summary:
+   Errors:   0
+   Warnings: 3
+   Info:     2
+
+Health Score: 85/100
 ```
 
 ---
