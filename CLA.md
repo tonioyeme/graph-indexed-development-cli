@@ -22,7 +22,7 @@ This Contributor License Agreement ("Agreement") documents the rights granted by
 **"Project"** means any repository or software project owned or maintained by the Project Owner, including but not limited to:
 - graph-indexed-development (methodology)
 - gid-cli (CLI tool)
-- gid-pro (commercial product)
+- gid-pro
 
 **"You" (or "Your")** means the individual or legal entity signing this Agreement.
 
@@ -60,7 +60,6 @@ You are eligible for revenue sharing if Your Contribution meets the following cr
 | Contribution Type | Minimum Threshold | Revenue Share |
 |-------------------|-------------------|---------------|
 | Core Feature Development | 200+ lines of code, accepted | 5-10% of feature-related revenue |
-| New Language Support | Complete language parser/extractor | 10-15% of language-related revenue |
 | Major Bug Fix | Critical bug, 50+ lines | One-time bonus: $50-500 |
 | Documentation | Significant documentation | One-time bonus: $20-100 |
 | Minor Contributions | < 50 lines, small fixes | Recognition only |
@@ -73,7 +72,7 @@ For ongoing revenue share contributions:
 Your Revenue Share = (Attributed Revenue) × (Your Share Percentage)
 
 Where:
-- Attributed Revenue = Revenue directly attributable to feature/language you contributed
+- Attributed Revenue = Revenue directly attributable to feature you contributed
 - Your Share Percentage = Agreed percentage based on contribution significance
 ```
 
@@ -207,13 +206,11 @@ Any disputes shall be resolved through binding arbitration in San Francisco, Cal
 
 ## 10. How to Sign
 
-### Option A: Digital Signature (Pull Requests)
-
 Include the following statement in your first Pull Request:
 
 ```
 I have read and agree to the GID Contributor License Agreement
-(https://github.com/tonioyeme/gid-cli/blob/main/CLA.md).
+(https://github.com/tonioyeme/graph-indexed-development-cli/blob/main/CLA.md).
 
 Signed: [Your Full Legal Name]
 Date: [YYYY-MM-DD]
@@ -221,41 +218,17 @@ Email: [Your Email]
 GitHub: [Your GitHub Username]
 ```
 
-### Option B: Email Confirmation
-
-Send an email to cla@gid.dev with:
-
-```
-Subject: CLA Signature - [Your GitHub Username]
-
-I have read and agree to the GID Contributor License Agreement.
-
-Full Legal Name: _______________
-Date: _______________
-Email: _______________
-GitHub Username: _______________
-Company (if applicable): _______________
-```
-
-### Option C: Signed PDF
-
-For corporate contributors, download, sign, and return the PDF version to cla@gid.dev.
-
 ---
 
 ## 11. Questions?
 
-If you have questions about this Agreement, contact us at:
-
-- Email: cla@gid.dev
-- GitHub: Open an issue with the label "CLA Question"
+If you have questions about this Agreement, open an issue on GitHub with the label "CLA Question".
 
 ---
 
 **GID Project Owner**
 
 Toni Tang
-toni@gid.dev
 
 ---
 

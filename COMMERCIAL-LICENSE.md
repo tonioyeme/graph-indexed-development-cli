@@ -23,20 +23,9 @@ You need a commercial license if:
 - Custom feature development (Enterprise tier)
 - Legal indemnification (Enterprise tier)
 
-## Pricing
-
-| Tier | Price | For |
-|------|-------|-----|
-| Startup | $299/year | Small teams (<10 developers) |
-| Business | $999/year | Medium teams (10-50 developers) |
-| Enterprise | Contact us | Large organizations, custom needs |
-
 ## Contact
 
-For commercial licensing inquiries:
-
-- Email: toni@gid.dev
-- GitHub: [@tonioyeme](https://github.com/tonioyeme)
+If you need a commercial license, please open an issue on GitHub or contact [@tonioyeme](https://github.com/tonioyeme).
 
 ## FAQ
 

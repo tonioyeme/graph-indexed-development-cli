@@ -387,7 +387,9 @@ Health Score: 90/100
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+Contributions are welcome! By submitting a PR, you agree to our [Contributor License Agreement (CLA)](CLA.md).
+
+The CLA enables dual licensing and includes revenue sharing for significant contributions.
 
 ```bash
 # Clone the repo
@@ -408,7 +410,10 @@ npm run build
 
 ## License
 
-**AGPL-3.0** - see [LICENSE](LICENSE) for details.
+This project is dual-licensed:
+
+- **AGPL-3.0** - Free for open source use. See [LICENSE](LICENSE).
+- **Commercial License** - For closed-source/SaaS use. See [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
 
 ---
 
