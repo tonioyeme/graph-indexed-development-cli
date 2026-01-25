@@ -29,6 +29,8 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 | `gid visual` - Export | Export to PNG/SVG | Pro |
 | `gid visual` - Edit mode | Modify graph in UI | Pro |
 
+**[See WORKFLOWS.md](WORKFLOWS.md)** for common use cases: new project setup, planning features, impact analysis, refactoring, and more.
+
 ---
 
 ## Installation
