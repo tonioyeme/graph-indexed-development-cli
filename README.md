@@ -24,11 +24,11 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 | `gid history` | Manage graph versions | Free |
 | `gid visual` | View graph in browser | Free |
 | `gid semantify` | Upgrade to semantic graph (heuristic) | Free |
-| `gid design` | AI-assisted graph design | Pro |
-| `gid analyze` | Deep file/function analysis | Pro |
-| `gid refactor` | Preview/apply graph changes | Pro |
-| `gid semantify --ai` | AI-powered semantic analysis | Pro |
-| `gid extract --with-summaries` | AI-generated descriptions | Pro |
+| `gid design` | AI-assisted graph design | Free |
+| `gid analyze` | Deep file/function analysis | Free |
+| `gid refactor` | Preview/apply graph changes | Free |
+| `gid semantify --ai` | AI-powered semantic analysis | Free |
+| `gid extract --with-summaries` | AI-generated descriptions | Free |
 
 **[See WORKFLOWS.md](WORKFLOWS.md)** for common use cases: new project setup, planning features, impact analysis, refactoring, and more.
 
@@ -168,6 +168,14 @@ gid advise --json                  # Output as JSON
 | `high-coupling` | Warn on high fan-in/fan-out |
 | `layer-violation` | Enforce layer boundaries |
 
+**Architecture Metrics (`--metrics`):**
+| Metric | Range | Description |
+|--------|-------|-------------|
+| `TurboMQ` | 0-1 | Modularization quality (higher = better) |
+| `Coupling` | 0-1 | Inter-module dependencies (lower = better) |
+| `Cohesion` | 0-1 | Intra-module connectivity (higher = better) |
+| `Modularity` | 0-1 | Combined score (higher = better) |
+
 ### `gid query`
 
 Query the dependency graph.
@@ -221,9 +229,32 @@ gid semantify --yes              # Auto-approve (for CI)
 gid semantify --json             # Output as JSON
 ```
 
-### `gid design` (Pro)
+### `gid analyze`
 
-AI-assisted graph design (requires Pro CLI and API key).
+Deep file analysis — functions, classes, patterns, and complexity.
+
+```bash
+gid analyze src/services/user.ts                # Full file analysis
+gid analyze src/services/user.ts -f getUserById  # Deep dive into function
+gid analyze src/services/user.ts -c UserService  # Deep dive into class
+gid analyze src/services/user.ts --json          # Output as JSON
+```
+
+### `gid refactor`
+
+Preview or apply graph refactoring operations.
+
+```bash
+gid refactor preview UserService              # Preview what would change
+gid refactor rename UserService -n AuthService # Rename node
+gid refactor move UserService -l domain        # Move to different layer
+gid refactor delete OldService                 # Delete node with cascade
+gid refactor delete OldService --no-dry-run    # Actually apply (default is dry-run)
+```
+
+### `gid design`
+
+AI-assisted graph design (requires API key).
 
 ```bash
 gid design                              # Interactive mode
@@ -412,8 +443,9 @@ Health Score: 85/100
 
 ## Related
 
+- **[GID MCP Server](https://github.com/tonioyeme/graph-indexed-development-mcp)** - MCP server for AI assistants (Claude, Cursor, etc.)
 - **[GID Methodology](https://github.com/tonioyeme/graph-indexed-development-principle)** - Full specification and documentation
-- **[GID Pro](https://github.com/tonioyeme/graph-indexed-development-pro)** - Pro features
+- **[GID Paper](https://zenodo.org/records/18425984)** - Formal methodology (Zenodo)
 
 ---
 

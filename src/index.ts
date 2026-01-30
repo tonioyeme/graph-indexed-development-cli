@@ -10,10 +10,13 @@ import { Command } from 'commander';
 import { runInit } from './commands/init.js';
 import { runImpactQuery, runDepsQuery, runCommonCauseQuery, runPathQuery } from './commands/query.js';
 import { runExtract, listDefaultIgnores } from './commands/extract.js';
+import { runDesign } from './commands/design.js';
 import { runHistoryList, runHistoryDiff, runHistoryRestore } from './commands/history.js';
 import { runVisual } from './commands/visual.js';
 import { runSemantify } from './commands/semantify.js';
 import { runAdvise } from './commands/advise.js';
+import { runAnalyze } from './commands/analyze.js';
+import { runRefactor } from './commands/refactor.js';
 
 const program = new Command();
 
@@ -140,6 +143,30 @@ extractCommand
   });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// design command
+// ═══════════════════════════════════════════════════════════════════════════════
+
+program
+  .command('design')
+  .description('AI-assisted top-down graph design')
+  .option('-p, --provider <provider>', 'AI provider (openai, anthropic, ollama)')
+  .option('-m, --model <model>', 'AI model to use')
+  .option('-o, --output <file>', 'Output file path')
+  .option('-f, --force', 'Overwrite existing graph')
+  .option('--non-interactive', 'Run without interactive prompts')
+  .option('-r, --requirements <text>', 'Requirements text (for non-interactive mode)')
+  .action((options) => {
+    runDesign({
+      provider: options.provider,
+      model: options.model,
+      output: options.output,
+      force: options.force,
+      nonInteractive: options.nonInteractive,
+      requirements: options.requirements,
+    });
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // visual command
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -203,6 +230,50 @@ program
       graphPath: options.graph,
       level: options.level,
       includeContext: options.includeContext,
+      json: options.json,
+    });
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// analyze command (Pro CLI)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+program
+  .command('analyze <file>')
+  .description('Analyze file structure, patterns, and signatures')
+  .option('-f, --function <name>', 'Deep dive into a specific function')
+  .option('-c, --class <name>', 'Deep dive into a specific class')
+  .option('--no-patterns', 'Skip pattern detection')
+  .option('--json', 'Output as JSON')
+  .action((file, options) => {
+    runAnalyze(file, {
+      function: options.function,
+      class: options.class,
+      noPatterns: !options.patterns,
+      json: options.json,
+    });
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// refactor command (Pro CLI)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+program
+  .command('refactor <operation> <nodeId>')
+  .description('Preview or apply graph changes (operations: preview, rename, move, delete)')
+  .option('-g, --graph <path>', 'Path to graph.yml file')
+  .option('-n, --new-name <name>', 'New name for rename operation')
+  .option('-l, --new-layer <layer>', 'New layer for move operation (interface, application, domain, infrastructure)')
+  .option('--no-dry-run', 'Apply changes (default is dry-run/preview)')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .option('--json', 'Output as JSON')
+  .action((operation, nodeId, options) => {
+    runRefactor(operation, nodeId, {
+      graphPath: options.graph,
+      newName: options.newName,
+      newLayer: options.newLayer,
+      dryRun: options.dryRun,
+      yes: options.yes,
       json: options.json,
     });
   });

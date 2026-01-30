@@ -10,6 +10,7 @@ import { GIDGraph } from '../core/graph.js';
 import { Validator } from '../core/validator.js';
 import { QueryEngine } from '../core/query-engine.js';
 import { detectFilePatterns } from '../analyzers/code-analysis.js';
+import { calculateMetrics, formatMetrics, GraphMetrics } from '../core/metrics.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Types
@@ -31,6 +32,7 @@ interface AdviseOptions {
   includeContext?: boolean;
   json?: boolean;
   graphPath?: string;
+  metrics?: boolean; // Show SAR metrics (TurboMQ, Coupling, Cohesion)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -303,26 +305,27 @@ export function runAdvise(options: AdviseOptions): void {
 
   const level = options.level ?? 'all';
   const includeContext = options.includeContext ?? false;
+  const showMetrics = options.metrics ?? false;
 
   console.log(`\n🔍 Analyzing graph (level: ${level})...`);
 
   // Load graph
   const graphData = loadGraph(graphPath);
+  const graph = new GIDGraph(graphData);
+
+  // Calculate SAR metrics if requested
+  let metrics: GraphMetrics | null = null;
+  if (showMetrics) {
+    metrics = calculateMetrics(graph);
+  }
 
   // Analyze and generate suggestions
   const result = analyzeGraph(graphData, level, includeContext);
   const { suggestions, healthScore } = result;
 
-  if (suggestions.length === 0) {
-    const scoreColor = healthScore >= 80 ? '\x1b[32m' : healthScore >= 50 ? '\x1b[33m' : '\x1b[31m';
-    const reset = '\x1b[0m';
-    console.log(`\n🎉 No issues found. Health Score: ${scoreColor}${healthScore}/100${reset}`);
-    return;
-  }
-
   // Output as JSON if requested
   if (options.json) {
-    console.log(JSON.stringify({
+    const output: Record<string, unknown> = {
       healthScore,
       suggestions,
       summary: {
@@ -331,7 +334,25 @@ export function runAdvise(options: AdviseOptions): void {
         info: suggestions.filter(s => s.severity === 'info').length,
         total: suggestions.length,
       },
-    }, null, 2));
+    };
+
+    if (metrics) {
+      output.metrics = metrics;
+    }
+
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+
+  // Display metrics if requested
+  if (metrics) {
+    console.log(formatMetrics(metrics));
+  }
+
+  if (suggestions.length === 0) {
+    const scoreColor = healthScore >= 80 ? '\x1b[32m' : healthScore >= 50 ? '\x1b[33m' : '\x1b[31m';
+    const reset = '\x1b[0m';
+    console.log(`\n🎉 No issues found. Health Score: ${scoreColor}${healthScore}/100${reset}`);
     return;
   }
 
@@ -346,4 +367,7 @@ export function runAdvise(options: AdviseOptions): void {
   console.log('\n💡 Tips:');
   console.log('   • Run `gid semantify` to auto-fix layer and type issues');
   console.log('   • Use --include-context for code pattern analysis');
+  if (!showMetrics) {
+    console.log('   • Use --metrics for detailed architecture metrics (TurboMQ, Coupling, Cohesion)');
+  }
 }
