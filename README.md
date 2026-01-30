@@ -8,9 +8,19 @@
 
 Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph-indexed-development-principle) methodology.
 
+![GID Visualization](gid-visualization.png)
+
+**Two workflows:**
+- **Top-down:** Describe what you want → `gid design` generates the architecture → implement against it
+- **Bottom-up:** `gid extract` from existing code → use for impact analysis, refactoring, and planning changes
+
+The graph evolves with your project — update it continuously as you develop.
+
+**Dogfooding:** GID's own architecture is defined as a GID graph. See the [self-referential graph](https://github.com/tonioyeme/graph-indexed-development-principle/blob/main/examples/gid-tool-graph.yml).
+
 ---
 
-## Features
+## Commands
 
 | Command | Description |
 |---------|-------------|
@@ -370,7 +380,34 @@ visual:
 
 ## Examples
 
-### Example 1: Analyze impact before refactoring
+### Top-Down: Design First, Then Build
+
+```bash
+$ gid design --requirements "E-commerce backend with auth, payments, order tracking"
+
+Generating graph from requirements...
+
+Created 4 features: UserAuth, Payment, OrderTracking, ProductCatalog
+Created 8 components across 4 layers
+Created 15 dependency edges
+
+Graph saved to .gid/graph.yml
+Health score: 95/100
+```
+
+### Bottom-Up: Extract from Existing Code
+
+```bash
+$ gid extract . --group --enrich
+
+Scanning TypeScript files...
+Found 42 files, 156 dependencies
+Grouped into 12 components across 4 layers
+
+Graph saved to .gid/graph.yml
+```
+
+### Impact Analysis Before Refactoring
 
 ```bash
 $ gid query impact DatabaseService
@@ -393,7 +430,7 @@ Affected Features (3):
 ⚠ Changes to DatabaseService may affect 5 component(s)
 ```
 
-### Example 2: Debug why two services fail together
+### Debug Why Two Services Fail Together
 
 ```bash
 $ gid query common-cause OrderService PaymentService
@@ -408,18 +445,16 @@ Shared dependencies (2):
 If both nodes are affected, check these common dependencies first.
 ```
 
-### Example 3: Validate architecture
+### Validate Architecture Health
 
 ```bash
 $ gid advise
 
-Analyzing graph (level: all)...
+Health Score: 85/100
 
 Suggestions:
-
 1. [D] orphan-node
    Node "utils/helpers.ts" has no connections
-   Connect to related nodes or remove if unused
 
 2. [H] high-coupling
    DatabaseService has 8 dependents (high coupling)
@@ -428,22 +463,25 @@ Suggestions:
 3. [D] layer-violation
    UserController depends on DatabaseService
    interface should not depend on infrastructure directly
-
-Summary:
-   Errors:   0
-   Warnings: 3
-   Info:     2
-
-Health Score: 85/100
 ```
+
+### Visualize
+
+```bash
+$ gid visual
+```
+
+Opens an interactive graph visualization at `http://localhost:3000`:
+
+![GID Visualization](gid-visualization.png)
 
 ---
 
 ## Related
 
-- **[GID MCP Server](https://github.com/tonioyeme/graph-indexed-development-mcp)** - MCP server for AI assistants (Claude, Cursor, etc.)
-- **[GID Methodology](https://github.com/tonioyeme/graph-indexed-development-principle)** - Full specification and documentation
-- **[GID Paper](https://zenodo.org/records/18425984)** - Formal methodology (Zenodo)
+- **[GID MCP Server](https://github.com/tonioyeme/graph-indexed-development-mcp)** — Use GID through AI assistants (Claude, Cursor, VS Code)
+- **[GID Methodology](https://github.com/tonioyeme/graph-indexed-development-principle)** — Specification, examples, and dogfood graph
+- **[GID Paper](https://zenodo.org/records/18425984)** — Formal methodology (Zenodo)
 
 ---
 
