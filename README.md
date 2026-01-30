@@ -12,23 +12,21 @@ Part of the [Graph-Indexed Development (GID)](https://github.com/tonioyeme/graph
 
 ## Features
 
-| Feature | Description | Availability |
-|---------|-------------|--------------|
-| `gid init` | Initialize a new graph | Free |
-| `gid extract` | Extract dependencies from code | Free |
-| `gid advise` | Validate graph + suggest improvements | Free |
-| `gid query impact` | Analyze what's affected by changes | Free |
-| `gid query deps` | Show dependencies of a node | Free |
-| `gid query common-cause` | Find shared dependencies | Free |
-| `gid query path` | Find path between nodes | Free |
-| `gid history` | Manage graph versions | Free |
-| `gid visual` | View graph in browser | Free |
-| `gid semantify` | Upgrade to semantic graph (heuristic) | Free |
-| `gid design` | AI-assisted graph design | Free |
-| `gid analyze` | Deep file/function analysis | Free |
-| `gid refactor` | Preview/apply graph changes | Free |
-| `gid semantify --ai` | AI-powered semantic analysis | Free |
-| `gid extract --with-summaries` | AI-generated descriptions | Free |
+| Command | Description |
+|---------|-------------|
+| `gid init` | Initialize a new graph |
+| `gid extract` | Extract dependencies from code |
+| `gid advise` | Validate graph + suggest improvements |
+| `gid query impact` | Analyze what's affected by changes |
+| `gid query deps` | Show dependencies of a node |
+| `gid query common-cause` | Find shared dependencies |
+| `gid query path` | Find path between nodes |
+| `gid history` | Manage graph versions |
+| `gid visual` | View graph in browser |
+| `gid semantify` | Upgrade to semantic graph |
+| `gid design` | AI-assisted graph design |
+| `gid analyze` | Deep file/function analysis |
+| `gid refactor` | Preview/apply graph changes |
 
 **[See WORKFLOWS.md](WORKFLOWS.md)** for common use cases: new project setup, planning features, impact analysis, refactoring, and more.
 
